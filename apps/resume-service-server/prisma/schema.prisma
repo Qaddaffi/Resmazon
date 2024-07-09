@@ -1,0 +1,83 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Comment {
+  id               String          @id @default(cuid())
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  content          String?
+  author           String?
+  resumeTemplate   ResumeTemplate? @relation(fields: [resumeTemplateId], references: [id])
+  resumeTemplateId String?
+}
+
+model ResumeTemplate {
+  id                String                         @id @default(cuid())
+  createdAt         DateTime                       @default(now())
+  updatedAt         DateTime                       @updatedAt
+  title             String?
+  description       String?
+  industry          EnumResumeTemplateIndustry[]
+  profession        EnumResumeTemplateProfession[]
+  fileWord          Json?
+  filePdf           Json?
+  freeDownload      Boolean?
+  price             Float?
+  comments          Comment[]
+  likes             Like[]
+  purchaseHistories PurchaseHistory[]
+  author            String?
+}
+
+model Like {
+  id               String          @id @default(cuid())
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  resumeTemplate   ResumeTemplate? @relation(fields: [resumeTemplateId], references: [id])
+  resumeTemplateId String?
+  user             User?           @relation(fields: [userId], references: [id])
+  userId           String?
+}
+
+model PurchaseHistory {
+  id               String          @id @default(cuid())
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  pricePaid        Float?
+  paymentMethod    String?
+  resumeTemplate   ResumeTemplate? @relation(fields: [resumeTemplateId], references: [id])
+  resumeTemplateId String?
+  user             User?           @relation(fields: [userId], references: [id])
+  userId           String?
+}
+
+model User {
+  id                String            @id @default(cuid())
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  firstName         String?
+  lastName          String?
+  username          String            @unique
+  email             String?           @unique
+  password          String
+  roles             Json
+  name              String?
+  mobileNumber      String?
+  emailVerified     Boolean?
+  likes             Like[]
+  purchaseHistories PurchaseHistory[]
+}
+
+enum EnumResumeTemplateIndustry {
+  Option1
+}
+
+enum EnumResumeTemplateProfession {
+  Option1
+}
